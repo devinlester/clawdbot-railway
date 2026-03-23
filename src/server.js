@@ -812,6 +812,8 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
           dmPolicy: "pairing",
           botToken: token,
           groupPolicy: "allowlist",
+          groupAllowFrom: [8536156138],
+          allowFrom: [8536156138],
           streamMode: "partial",
         };
         const set = await runCmd(
