@@ -895,6 +895,10 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
       extra += `\n[notion mcp] exit=${set.code} (output ${set.output.length} chars)\n${set.output || "(no output)"}`;
     }
 
+    // Enable apply_patch plugin so the coding profile's tool allowlist resolves correctly.
+    const applyPatchPlug = await runCmd(OPENCLAW_NODE, clawArgs(["plugins", "enable", "apply_patch"]));
+    extra += `\n[apply_patch plugin enable] exit=${applyPatchPlug.code} (output ${applyPatchPlug.output.length} chars)\n${applyPatchPlug.output || "(no output)"}`;
+
     // Apply changes immediately.
     await restartGateway();
 
