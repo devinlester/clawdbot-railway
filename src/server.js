@@ -472,6 +472,12 @@ app.get("/setup", requireSetupAuth, (_req, res) => {
       Get it from BotFather: open Telegram, message <code>@BotFather</code>, run <code>/newbot</code>, then copy the token.
     </div>
 
+    <label>Your Telegram user ID (required if using Telegram)</label>
+    <input id="telegramAllowedUserId" placeholder="e.g. 123456789" />
+    <div class="muted" style="margin-top: 0.25rem">
+      The bot will only respond to messages from this user ID. Message <code>@userinfobot</code> on Telegram to get your numeric ID.
+    </div>
+
     <label>Discord bot token (optional)</label>
     <input id="discordToken" type="password" placeholder="Bot token" />
     <div class="muted" style="margin-top: 0.25rem">
@@ -807,13 +813,13 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
       } else {
         // Avoid `channels add` here (it has proven flaky across builds); write config directly.
         const token = payload.telegramToken.trim();
+        const telegramUserId = Number.parseInt(String(payload.telegramAllowedUserId || "").trim(), 10);
         const cfgObj = {
           enabled: true,
           dmPolicy: "pairing",
           botToken: token,
-          groupPolicy: "allowlist",
-          groupAllowFrom: [8536156138],
-          allowFrom: [8536156138],
+          groupPolicy: telegramUserId ? "allowlist" : "open",
+          ...(telegramUserId ? { groupAllowFrom: [telegramUserId], allowFrom: [telegramUserId] } : {}),
           streamMode: "partial",
         };
         const set = await runCmd(
@@ -839,7 +845,7 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
         const cfgObj = {
           enabled: true,
           token,
-          groupPolicy: "allowlist",
+          groupPolicy: "open",
           dm: {
             policy: "pairing",
           },

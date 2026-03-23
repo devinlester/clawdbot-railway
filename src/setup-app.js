@@ -155,6 +155,7 @@
       authChoice: authChoiceEl.value,
       authSecret: document.getElementById('authSecret').value,
       telegramToken: document.getElementById('telegramToken').value,
+      telegramAllowedUserId: document.getElementById('telegramAllowedUserId').value,
       discordToken: document.getElementById('discordToken').value,
       slackBotToken: document.getElementById('slackBotToken').value,
       slackAppToken: document.getElementById('slackAppToken').value,
