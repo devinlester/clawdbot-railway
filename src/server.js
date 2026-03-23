@@ -484,6 +484,13 @@ app.get("/setup", requireSetupAuth, (_req, res) => {
 
     <label>Slack app token (optional)</label>
     <input id="slackAppToken" type="password" placeholder="xapp-..." />
+
+    <label>Notion API key (optional)</label>
+    <input id="notionApiKey" type="password" placeholder="secret_..." />
+    <div class="muted" style="margin-top: 0.25rem">
+      Create an internal integration at <code>notion.so/my-integrations</code>, copy the secret, then share the pages you want accessible with the integration.
+      The bot will use the <code>@notionhq/mcp</code> server to read and write Notion pages.
+    </div>
   </div>
 
   <div class="card">
@@ -864,6 +871,22 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
       }
     }
 
+    if (payload.notionApiKey?.trim()) {
+      const notionApiKey = payload.notionApiKey.trim();
+      const mcpCfg = {
+        command: "npx",
+        args: ["-y", "@notionhq/mcp"],
+        env: {
+          NOTION_API_KEY: notionApiKey,
+        },
+      };
+      const set = await runCmd(
+        OPENCLAW_NODE,
+        clawArgs(["config", "set", "--json", "mcpServers.notion", JSON.stringify(mcpCfg)]),
+      );
+      extra += `\n[notion mcp] exit=${set.code} (output ${set.output.length} chars)\n${set.output || "(no output)"}`;
+    }
+
     // Apply changes immediately.
     await restartGateway();
 
@@ -953,7 +976,9 @@ function redactSecrets(text) {
     .replace(/(xox[baprs]-[A-Za-z0-9-]{10,})/g, "[REDACTED]")
     // Telegram bot tokens look like: 123456:ABCDEF...
     .replace(/(\d{5,}:[A-Za-z0-9_-]{10,})/g, "[REDACTED]")
-    .replace(/(AA[A-Za-z0-9_-]{10,}:\S{10,})/g, "[REDACTED]");
+    .replace(/(AA[A-Za-z0-9_-]{10,}:\S{10,})/g, "[REDACTED]")
+    // Notion internal integration secrets start with secret_
+    .replace(/(secret_[A-Za-z0-9]{10,})/g, "[REDACTED]");
 }
 
 function extractDeviceRequestIds(text) {

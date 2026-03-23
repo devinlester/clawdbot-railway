@@ -159,6 +159,8 @@
       slackBotToken: document.getElementById('slackBotToken').value,
       slackAppToken: document.getElementById('slackAppToken').value,
 
+      notionApiKey: document.getElementById('notionApiKey').value,
+
       customProviderId: document.getElementById('customProviderId').value,
       customProviderBaseUrl: document.getElementById('customProviderBaseUrl').value,
       customProviderApi: document.getElementById('customProviderApi').value,
